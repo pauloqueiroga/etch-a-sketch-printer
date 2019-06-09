@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PQ.EtchASketchPrinter.Core;
 
@@ -11,6 +12,7 @@ namespace EtchASketchPrinter.Core.Tests
         protected internal const int MaxResolution = 100;
         protected internal const int MinResolution = MinPixels;
         protected internal const int MinPixels = 1;
+        protected internal const int MaxRandomTries = 50;
         private readonly Random _random = new Random((int) DateTime.Now.Ticks);
 
         [TestMethod]
@@ -183,6 +185,143 @@ namespace EtchASketchPrinter.Core.Tests
         }
 
         [TestMethod]
+        public void StraightLine45DegreesNEShouldUpdateCurrentPositionXAndY()
+        {
+            // Arrange
+            var amount = _random.Next(1, MaxPixels);
+            var verticalHand = new InopServoController();
+            var horizontalHand = new InopServoController();
+            var target = new DrawingHands(horizontalHand, verticalHand);
+            
+            var origin = target.CurrentPosition;
+
+            // Act
+            var result = target.StraightLine(amount, amount);
+            var resultingPosition = target.CurrentPosition;
+
+            // Assert
+            Assert.AreEqual(origin.X + amount, result.X);
+            Assert.AreEqual(origin.Y + amount, result.Y);
+            Assert.AreEqual(result.X, resultingPosition.X);
+            Assert.AreEqual(result.Y, resultingPosition.Y);
+            Assert.AreEqual(amount, verticalHand.ClockwiseActivations);
+            Assert.AreEqual(0, verticalHand.CounterClockwiseActivations);
+            Assert.AreEqual(amount, horizontalHand.ClockwiseActivations);
+            Assert.AreEqual(0, horizontalHand.CounterClockwiseActivations);
+        }
+
+        [TestMethod]
+        public void StraightLine45DegreesSEShouldUpdateCurrentPositionXAndY()
+        {
+            // Arrange
+            var amount = _random.Next(1, MaxPixels);
+            var verticalAmount = -amount;
+            var horizontalAmount = amount;
+            var verticalHand = new InopServoController();
+            var horizontalHand = new InopServoController();
+            var target = new DrawingHands(horizontalHand, verticalHand);
+            
+            var origin = target.CurrentPosition;
+
+            // Act
+            var result = target.StraightLine(horizontalAmount, verticalAmount);
+            var resultingPosition = target.CurrentPosition;
+
+            // Assert
+            Assert.AreEqual(origin.X + horizontalAmount, result.X);
+            Assert.AreEqual(origin.Y + verticalAmount, result.Y);
+            Assert.AreEqual(result.X, resultingPosition.X);
+            Assert.AreEqual(result.Y, resultingPosition.Y);
+            Assert.AreEqual(amount, verticalHand.CounterClockwiseActivations);
+            Assert.AreEqual(0, verticalHand.ClockwiseActivations);
+            Assert.AreEqual(amount, horizontalHand.ClockwiseActivations);
+            Assert.AreEqual(0, horizontalHand.CounterClockwiseActivations);
+        }
+
+        [TestMethod]
+        public void StraightLine45DegreesSWShouldUpdateCurrentPositionXAndY()
+        {
+            // Arrange
+            var amount = _random.Next(1, MaxPixels);
+            var verticalAmount = -amount;
+            var horizontalAmount = -amount;
+            var verticalHand = new InopServoController();
+            var horizontalHand = new InopServoController();
+            var target = new DrawingHands(horizontalHand, verticalHand);
+            
+            var origin = target.CurrentPosition;
+
+            // Act
+            var result = target.StraightLine(horizontalAmount, verticalAmount);
+            var resultingPosition = target.CurrentPosition;
+
+            // Assert
+            Assert.AreEqual(origin.X + horizontalAmount, result.X);
+            Assert.AreEqual(origin.Y + verticalAmount, result.Y);
+            Assert.AreEqual(result.X, resultingPosition.X);
+            Assert.AreEqual(result.Y, resultingPosition.Y);
+            Assert.AreEqual(amount, verticalHand.CounterClockwiseActivations);
+            Assert.AreEqual(0, verticalHand.ClockwiseActivations);
+            Assert.AreEqual(amount, horizontalHand.CounterClockwiseActivations);
+            Assert.AreEqual(0, horizontalHand.ClockwiseActivations);
+        }
+
+        [TestMethod]
+        public void StraightLine45DegreesNWShouldUpdateCurrentPositionXAndY()
+        {
+            // Arrange
+            var amount = _random.Next(1, MaxPixels);
+            var verticalAmount = amount;
+            var horizontalAmount = -amount;
+            var verticalHand = new InopServoController();
+            var horizontalHand = new InopServoController();
+            var target = new DrawingHands(horizontalHand, verticalHand);
+            
+            var origin = target.CurrentPosition;
+
+            // Act
+            var result = target.StraightLine(horizontalAmount, verticalAmount);
+            var resultingPosition = target.CurrentPosition;
+
+            // Assert
+            Assert.AreEqual(origin.X + horizontalAmount, result.X);
+            Assert.AreEqual(origin.Y + verticalAmount, result.Y);
+            Assert.AreEqual(result.X, resultingPosition.X);
+            Assert.AreEqual(result.Y, resultingPosition.Y);
+            Assert.AreEqual(amount, verticalHand.ClockwiseActivations);
+            Assert.AreEqual(0, verticalHand.CounterClockwiseActivations);
+            Assert.AreEqual(amount, horizontalHand.CounterClockwiseActivations);
+            Assert.AreEqual(0, horizontalHand.ClockwiseActivations);
+        }
+
+        [TestMethod]
+        public void StraightLine30DegreesShouldUpdateCurrentPositionXAndY()
+        {
+            // Arrange
+            var verticalAmount = _random.Next(1, MaxPixels);
+            var horizontalAmount = verticalAmount * 2;
+            var verticalHand = new InopServoController();
+            var horizontalHand = new InopServoController();
+            var target = new DrawingHands(horizontalHand, verticalHand);
+
+            var origin = target.CurrentPosition;
+
+            // Act
+            var result = target.StraightLine(horizontalAmount, verticalAmount);
+            var resultingPosition = target.CurrentPosition;
+
+            // Assert
+            Assert.AreEqual(origin.X + horizontalAmount, result.X);
+            Assert.AreEqual(origin.Y + verticalAmount, result.Y);
+            Assert.AreEqual(result.X, resultingPosition.X);
+            Assert.AreEqual(result.Y, resultingPosition.Y);
+            Assert.AreEqual(verticalAmount, verticalHand.ClockwiseActivations);
+            Assert.AreEqual(0, verticalHand.CounterClockwiseActivations);
+            Assert.AreEqual(horizontalAmount, horizontalHand.ClockwiseActivations);
+            Assert.AreEqual(0, horizontalHand.CounterClockwiseActivations);
+        }
+
+        [TestMethod]
         public void MoveUpShouldActivateVerticalServoClockwise()
         {
             // Arrange
@@ -348,7 +487,118 @@ namespace EtchASketchPrinter.Core.Tests
             Assert.AreEqual(origin.Y, resultingPosition.Y);
         }
 
-        //TODO: Move* should not take negative numbers
+        [TestMethod]
+        public void MoveUpShouldNotTakeNegativeNumbers()
+        {
+            // Arrange
+            var target = CreateRandomTarget();
+            var origin = target.CurrentPosition;
+
+            // Act 
+            for (var tryNumber = 0; tryNumber < MaxRandomTries; tryNumber++)
+            {
+                var randomNegative = _random.Next(-MaxPixels, -1);
+
+                try
+                {
+                    var result = target.MoveUp(randomNegative);
+                    Assert.Fail($"The previous line should have thrown an exception. Argument value was [{randomNegative}]");
+                }
+                catch (InvalidOperationException)
+                {
+                    var resultingPosition = target.CurrentPosition;
+
+                    // Assert
+                    Assert.AreEqual(origin.X, resultingPosition.X);
+                    Assert.AreEqual(origin.Y, resultingPosition.Y);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void MoveDownShouldNotTakeNegativeNumbers()
+        {
+            // Arrange
+            var target = CreateRandomTarget();
+            var origin = target.CurrentPosition;
+
+            // Act 
+            for (var tryNumber = 0; tryNumber < MaxRandomTries; tryNumber++)
+            {
+                var randomNegative = _random.Next(-MaxPixels, -1);
+
+                try
+                {
+                    var result = target.MoveDown(randomNegative);
+                    Assert.Fail($"The previous line should have thrown an exception. Argument value was [{randomNegative}]");
+                }
+                catch (InvalidOperationException)
+                {
+                    var resultingPosition = target.CurrentPosition;
+
+                    // Assert
+                    Assert.AreEqual(origin.X, resultingPosition.X);
+                    Assert.AreEqual(origin.Y, resultingPosition.Y);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void MoveLeftShouldNotTakeNegativeNumbers()
+        {
+            // Arrange
+            var target = CreateRandomTarget();
+            var origin = target.CurrentPosition;
+
+            // Act 
+            for (var tryNumber = 0; tryNumber < MaxRandomTries; tryNumber++)
+            {
+                var randomNegative = _random.Next(-MaxPixels, -1);
+
+                try
+                {
+                    var result = target.MoveLeft(randomNegative);
+                    Assert.Fail($"The previous line should have thrown an exception. Argument value was [{randomNegative}]");
+                }
+                catch (InvalidOperationException)
+                {
+                    var resultingPosition = target.CurrentPosition;
+
+                    // Assert
+                    Assert.AreEqual(origin.X, resultingPosition.X);
+                    Assert.AreEqual(origin.Y, resultingPosition.Y);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void MoveRightShouldNotTakeNegativeNumbers()
+        {
+            // Arrange
+            var target = CreateRandomTarget();
+            var origin = target.CurrentPosition;
+
+            // Act 
+            for (var tryNumber = 0; tryNumber < MaxRandomTries; tryNumber++)
+            {
+                var randomNegative = _random.Next(-MaxPixels, -1);
+
+                try
+                {
+                    var result = target.MoveRight(randomNegative);
+                    Assert.Fail($"The previous line should have thrown an exception. Argument value was [{randomNegative}]");
+                }
+                catch (InvalidOperationException)
+                {
+                    var resultingPosition = target.CurrentPosition;
+
+                    // Assert
+                    Assert.AreEqual(origin.X, resultingPosition.X);
+                    Assert.AreEqual(origin.Y, resultingPosition.Y);
+                }
+            }
+        }
+
         //TODO: StraightLine 10, 15, 30, 45, 60, 75 degrees
 
         private DrawingHands CreateRandomTarget()

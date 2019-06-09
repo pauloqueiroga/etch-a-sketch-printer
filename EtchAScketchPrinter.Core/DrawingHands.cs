@@ -39,11 +39,13 @@ namespace PQ.EtchASketchPrinter.Core
 
         public Point MoveUp(int pixels)
         {
+            ValidatePositiveValue(pixels);
             return MoveVertically(pixels);
         }
 
         public Point MoveDown(int pixels)
         {
+            ValidatePositiveValue(pixels);
             return MoveVertically(-pixels);
         }
 
@@ -55,11 +57,13 @@ namespace PQ.EtchASketchPrinter.Core
 
         public Point MoveLeft(int pixels)
         {
+            ValidatePositiveValue(pixels);
             return MoveHorizontally(-pixels);
         }
 
         public Point MoveRight(int pixels)
         {
+            ValidatePositiveValue(pixels);
             return MoveHorizontally(pixels);
         }
 
@@ -77,14 +81,23 @@ namespace PQ.EtchASketchPrinter.Core
 
             var horizontalDistance = Math.Abs(horizontalOffset);
             var verticalDistance = Math.Abs(verticalOffset);
+
+            if (horizontalDistance == verticalDistance)
+            {
+                return MoveBoth(horizontalOffset, verticalOffset);
+            }
+
             var steps = Math.Max(horizontalDistance, verticalDistance);
             var milestones = Math.Min(horizontalDistance, verticalDistance);
             var slowPace = (float) milestones / steps;
+
+            // start assuming horizontal is the slow slow...
             var slowHand = HorizontalHand;
             var fastHand = VerticalHand;
             var slowDirection = horizontalOffset / horizontalDistance;
             var fastDirection = verticalOffset / verticalDistance;
 
+            // ... swap fast and slow if horizontal turns up to be the fast one
             if (horizontalDistance != milestones)
             {
                 slowHand = VerticalHand;
@@ -108,10 +121,43 @@ namespace PQ.EtchASketchPrinter.Core
                 }
 
                 slowHand.RotateBy(slowAmount);
-                lag++;
+                lag = step + 1;
             }
 
             return UpdatePosition(horizontalOffset, verticalOffset);
+        }
+
+        private Point MoveBoth(int horizontalOffset, int verticalOffset)
+        {
+            var horizontalDistance = Math.Abs(horizontalOffset);
+            var verticalDistance = Math.Abs(verticalOffset);
+            var horizontalAmount = horizontalOffset / horizontalDistance;
+            var verticalAmount = verticalOffset / verticalDistance;
+
+            while (horizontalDistance > 0 && verticalDistance>0)
+            {
+                if (horizontalDistance > 0)
+                {
+                    MoveHorizontally(horizontalAmount);
+                    horizontalDistance--;
+                }
+
+                if (verticalDistance > 0)
+                {
+                    MoveVertically(verticalAmount);
+                    verticalDistance--;
+                }
+            }
+
+            return CurrentPosition;
+        }
+
+        private static void ValidatePositiveValue(int pixels)
+        {
+            if (pixels < 0)
+            {
+                throw new InvalidOperationException("Directional Move operations do not accept negative numbers");
+            }
         }
 
         private Point UpdatePosition(int xOffset, int yOffset)

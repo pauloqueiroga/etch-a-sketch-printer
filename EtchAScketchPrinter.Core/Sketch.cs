@@ -4,8 +4,13 @@ namespace PQ.EtchASketchPrinter.Core
 {
     public class Sketch
     {
+        public Sketch()
+        {
+            Steps = new List<Sketch>();
+        }
+
         public virtual string Name { get; set; }
-        public IEnumerable<Sketch> Steps { get; set; }
+        public ICollection<Sketch> Steps { get; }
 
         public virtual IEnumerable<string> Execute(DrawingHands hands)
         {
